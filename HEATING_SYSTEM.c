@@ -57,7 +57,7 @@ void HeatingSystem_Update (void)
         /*turn the cooler off*/
         GPIO_PinWrite(COOLER, LOW); 
         
-//        Operation = OP_Neutral;
+
         
         /*return counters to initial values*/
         u8_CurrentTempReadingCounter = CURRENT_TEMP_READING_COUNTER_INITIAL_VALUE; 
@@ -107,41 +107,26 @@ void HeatingSystem_Update (void)
         /*compare average current temp with set temp and take decision*/
         if(u16_CurrentTemp > (u8_SetTemp+5))
         {
-            Operation = OP_Cooling;
+			GPIO_PinWrite(HEATER, LOW); /*turn off heater*/
+			GPIO_PinWrite(COOLER, HIGH); /*turn on the cooler*/
+			LED_Status(HEATING_ELEMENT_LED, LED_ON); /*turn led on*/
         }
         else if (u16_CurrentTemp < (u8_SetTemp-5))
         {
-            Operation = OP_Heating;
-        } 
-        
-        /*make action according to the taken decision*/
-        switch (Operation)
-        {
-            case OP_Cooling:
-            GPIO_PinWrite(HEATER, LOW); /*turn off heater*/
-            GPIO_PinWrite(COOLER, HIGH); /*turn on the cooler*/
-            LED_Status(HEATING_ELEMENT_LED, LED_ON); /*turn led on*/
-            break;
-            
-        case OP_Heating:
             GPIO_PinWrite(HEATER, HIGH); /*turn on heater*/
-            GPIO_PinWrite(COOLER, LOW); /*turn off cooler*/
-            /*led blinking each 1 sec*/
-            if(19 > u8_LedBlinkingCounter)
-            {
-                u8_LedBlinkingCounter++;
-            }
-            else
-            {
-                u8_LedBlinkingCounter = LED_BLINKING_COUNTER_INITIAL_VALUE;
-                
-                LED_Status(HEATING_ELEMENT_LED, LED_TOGGLE);
-            }
-            break;
-            
-        default:
-            break;
-        }
+			GPIO_PinWrite(COOLER, LOW); /*turn off cooler*/
+			/*led blinking each 1 sec*/
+			if(19 > u8_LedBlinkingCounter)
+			{
+			    u8_LedBlinkingCounter++;
+			}
+			else
+			{
+			    u8_LedBlinkingCounter = LED_BLINKING_COUNTER_INITIAL_VALUE;
+			    
+			    LED_Status(HEATING_ELEMENT_LED, LED_TOGGLE);
+			}
+        } 
     }
     
 

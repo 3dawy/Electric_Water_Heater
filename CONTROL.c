@@ -69,50 +69,38 @@ void Control_Update (void)
             break;
     }
 
-    /*SYSTEM ON/OFF STATUS STATE MACHINE*/
-    switch (u8_Status)
+	if (CHANGE_ON_OFF_PB_FLAG == OnOffPB_Flag)
     {
-        case Sys_Off:
-            if (CHANGE_ON_OFF_PB_FLAG == OnOffPB_Flag)
-            {
-                u8_Status = Sys_On; /*turn system on*/
-                
-                SysStatus_Setter(Sys_On); /*update system status to other app s/w components*/
-                
-                EXTEEPROM_ReadByte(&u8_SetTemp, EXT_EEPROM_BYTE_ADD); /*get set temp from ext_eeprom*/
-                if((MAX_SET_TEMP < u8_SetTemp)||(MIN_SET_TEMP > u8_SetTemp))
-                {
-                    u8_SetTemp = SET_TEMP_INITIAL_VALUE;
-                }
-                SetTemp_Setter(u8_SetTemp); /*update set temp to other app s/w components*/
-            }
-            else
-            {
-                SysStatus_Setter(Sys_Off);
-            }
-            break;
-        /********************************************************************************/
-        /********************************************************************************/
-        case Sys_On:
-            if (CHANGE_ON_OFF_PB_FLAG == OnOffPB_Flag)
-            {
-                u8_Status = Sys_Off; /*turn system off*/
-                
-                SetTemp_getter(&u8_SetTemp); /*get set temp from other app s/w components*/
-                
-                EXTEEPROM_WriteByte(u8_SetTemp,EXT_EEPROM_BYTE_ADD); /*store set temp to ext_eeprom*/
-                
-                SysStatus_Setter(Sys_Off); /*update system status to other app s/w components*/
-            }
-            else
-            {
-                SysStatus_Setter(Sys_On);
-            }
-            break;
-        /********************************************************************************/
-        /********************************************************************************/
-        default:
-            break;
+		/*SYSTEM ON/OFF STATUS STATE MACHINE*/
+		switch (u8_Status)
+		{
+			case Sys_Off:
+				u8_Status = Sys_On; /*turn system on*/
+				
+				SysStatus_Setter(Sys_On); /*update system status to other app s/w components*/
+				
+				EXTEEPROM_ReadByte(&u8_SetTemp, EXT_EEPROM_BYTE_ADD); /*get set temp from ext_eeprom*/
+				if((MAX_SET_TEMP < u8_SetTemp)||(MIN_SET_TEMP > u8_SetTemp))
+				{
+					u8_SetTemp = SET_TEMP_INITIAL_VALUE;
+				}
+				SetTemp_Setter(u8_SetTemp); /*update set temp to other app s/w components*/
+				break;
+			/********************************************************************************/
+			/********************************************************************************/
+			case Sys_On:
+				u8_Status = Sys_Off; /*turn system off*/
+				
+				SetTemp_getter(&u8_SetTemp); /*get set temp from other app s/w components*/
+				
+				EXTEEPROM_WriteByte(u8_SetTemp,EXT_EEPROM_BYTE_ADD); /*store set temp to ext_eeprom*/
+				
+				SysStatus_Setter(Sys_Off); /*update system status to other app s/w components*/
+				break;
+			/********************************************************************************/
+			/********************************************************************************/
+			default:
+				break;
+		}
     }
-    
 }
